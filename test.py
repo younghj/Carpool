@@ -1,4 +1,4 @@
-# import json
+import json
 
 # with open('directions2.txt') as f:
     # data = json.load(f)[0]
@@ -35,10 +35,18 @@ from random import randint
 class Graph:
     def __init__(self):
         self.nodes = set()
+
         self.edges = defaultdict(list)
-        self.reverse_edges = defaultdict(list)
         self.distances = {}
+
+        self.reverse_edges = defaultdict(list)
         self.reverse_distances = {}
+
+        self.reverse = False
+
+    def set_reverse(self, value):
+        if isinstance(value, bool):
+            self.reverse = value
 
     def add_node(self, value):
         self.nodes.add(value)
@@ -47,13 +55,14 @@ class Graph:
         if not(from_node in self.nodes or to_node in self.nodes): return False
 
         self.edges[from_node].append(to_node)
-        self.reverse_edges[to_node].append(from_node)
         self.distances[(from_node, to_node)] = distance
+
+        self.reverse_edges[to_node].append(from_node)
         self.reverse_distances[(to_node, from_node)] = distance
         return True
 
     def neighbours(self, node):
-        return self.edges[node]
+        return self.reverse_edges[node] if self.reverse else self.edges[node]
 
     def node_num(self):
         return len(list(self.nodes))
@@ -79,96 +88,142 @@ class Graph:
             return [path_so_far]
 
         for neighbour in neighbours:
-            if neighbour in path_so_far:
-                return [path_so_far]
-            else:
+            if neighbour not in path_so_far:
                 path = self.find_paths_with_cycles(path_so_far + [neighbour])
                 all_paths.extend(path)
 
         return all_paths
 
+    def route_weight(self, route):
+        if len(route) < 2: return 0
 
-#init graph
-upper = list(string.ascii_uppercase)[:5]
-test = Graph()
-for letter in upper:
-    test.add_node(letter)
+        total_weight = 0
+        for x in xrange(len(route)-1):
+            node = route[x]
+            next_node = route[x+1]
+            weight = self.reverse_distances[(node, next_node)] if self.reverse else self.distances[(node, next_node)]
+            total_weight += weight
 
-#make random graph
-nodes = list(test.nodes)
-for node in nodes:
-    for other in nodes:
-        if node == other: continue
-        rand = randint(-5,5)
-        if rand > 0:
-            test.add_edge(node, other, rand)
+        return total_weight
 
-print test.distances
 
-a = test.find_all_paths('A')
-print 'res'
-print a
+    # def neighbours(self, node, reverse=False):
+        # return self.reverse_edges[node] if reverse else self.edges[node]
 
-# reverse 
-# don't use dijsktra
-# instead get find_all_paths from dest to each car
-# def shortest(graph, initial): #dijsktra
-    # visited = {initial: 0}
-    # path = {}
+    # def node_num(self):
+        # return len(list(self.nodes))
 
-    # nodes = set(graph.nodes)
+    # def index(self, num):
+        # try:
+            # value = list(self.nodes)[num]
+        # except IndexError:
+            # value = ''
+        # return value
 
-    # while nodes:
-        # min_node = None
-        # for node in nodes:
-            # if node in visited:
-                # if min_node is None:
-                    # min_node = node
-                # elif visited[node] < visited[min_node]:
-                    # min_node = node
-        # if min_node is None:
-            # break
+    # def find_all_paths(self, start, reverse=False):
+        # if start in self.nodes:
+            # return self.find_paths_with_cycles([start], reverse)
+        # return []
 
-        # nodes.remove(min_node)
-        # current_weight = visied[min_node]
+    # def find_paths_with_cycles(self, path_so_far, reverse=False):
+        # all_paths = []
+        # last_node = path_so_far[-1]
+        # neighbours = self.neighbours(last_node, reverse)
 
-        # for edge in graph.edges[min_node]:
-            # weight = current_weight + graph.distance[(min_node, edge)]
-            # if edge not in visited or weight < visited[edge]:
-                # visited[edge] = weight
-                # path[edge] = min_node
+        # if not len(neighbours):
+            # return [path_so_far]
 
-    # return visited, path
+        # for neighbour in neighbours:
+            # if neighbour in path_so_far:
+                # return [path_so_far]
+            # else:
+                # path = self.find_paths_with_cycles(path_so_far + [neighbour], reverse)
+                # all_paths.extend(path)
 
-# class Carpool(object):
-    # def __init__(self):
-        # self.cars = []
-        # self.homes = []
-        # self.dest = []
-        # self.edges = {}
+        # return all_paths
 
-    # def set_car(self, cars):
-        # for car in cars:
-            # node = Node('car',car)
-            # self.cars.append(node)
+    # def route_weight(self, route, reverse=False):
+        # if len(route) < 2: return 0
 
-    # def set_homes(self, homes):
-        # for home in homes:
-            # node = Node('home',home)
-            # self.homes.append(node)
+        # total_weight = 0
+        # for x in xrange(len(route)-1):
+            # node = route[x]
+            # next_node = route[x+1]
+            # weight = self.reverse_distances[(node, next_node)] if reverse else self.distances[(node, next_node)]
+            # total_weight += weight
 
-    # def set_dest(self, dest):
-        # node = Node('dest',dest)
-        # self.dest.append(node)
+        # return total_weight
 
-    # def make(self):
-        # for node in self.cars:
-            # for other in self.homes + self.dest:
-                # key = node.get_name() + ' ' + other.get_name()
-                # self.edges[key] = 0
-        # for node in self.homes:
-            # for other in self.homes + self.dest:
-                # if not(node is other):
-                    # key = node.get_name() + ' ' + other.get_name()
-                    # self.edges[key] = 0
 
+# upper = list(string.ascii_uppercase)[:5]
+# test = Graph()
+# for letter in upper:
+    # test.add_node(letter)
+
+# nodes = list(test.nodes)
+# for node in nodes:
+    # for other in nodes:
+        # if node == other: continue
+        # rand = randint(-5,5)
+        # if rand > 0:
+            # test.add_edge(node, other, rand)
+
+# print test.distances
+
+# a = test.find_all_paths('A')
+# print 'res'
+# print a
+
+carpool = Graph()
+
+car_num = 2
+cars = ['car'+str(x) for x in xrange(car_num)]
+home_num = 3
+homes = ['home'+str(x) for x in xrange(home_num)]
+dest = ['dest']
+
+
+for x in cars+homes+dest:
+    carpool.add_node(x)
+
+for node in cars:
+    for other in homes+dest:
+        rand = randint(1,10)
+        carpool.add_edge(node, other, rand)
+
+for node in homes:
+    for other in homes+dest:
+        if node != other:
+            rand = randint(1,10)
+            carpool.add_edge(node, other, rand)
+
+carpool.set_reverse(True)
+routes = carpool.find_all_paths('dest')
+
+print
+print 'weights:'
+
+
+
+weights = {}
+track = {}
+
+for route in routes:
+    weight = carpool.route_weight(route)
+
+    route_num = [sum([ord(l) for l in list(x)]) for x in route]
+    mul = reduce(lambda x, y: x*y, route_num)
+    add = sum(route_num)
+    identity = mul*add
+
+    if track.has_key(identity):
+        value = track[identity][1]
+        if weight < value:
+            track[identity] = [route, weight]
+    else:
+        track[identity] = [route, weight]
+
+for k,v in track.iteritems():
+    weights[tuple(v[0])] = v[1]
+
+print weights
