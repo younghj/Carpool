@@ -106,74 +106,6 @@ class Graph:
 
         return total_weight
 
-
-    # def neighbours(self, node, reverse=False):
-        # return self.reverse_edges[node] if reverse else self.edges[node]
-
-    # def node_num(self):
-        # return len(list(self.nodes))
-
-    # def index(self, num):
-        # try:
-            # value = list(self.nodes)[num]
-        # except IndexError:
-            # value = ''
-        # return value
-
-    # def find_all_paths(self, start, reverse=False):
-        # if start in self.nodes:
-            # return self.find_paths_with_cycles([start], reverse)
-        # return []
-
-    # def find_paths_with_cycles(self, path_so_far, reverse=False):
-        # all_paths = []
-        # last_node = path_so_far[-1]
-        # neighbours = self.neighbours(last_node, reverse)
-
-        # if not len(neighbours):
-            # return [path_so_far]
-
-        # for neighbour in neighbours:
-            # if neighbour in path_so_far:
-                # return [path_so_far]
-            # else:
-                # path = self.find_paths_with_cycles(path_so_far + [neighbour], reverse)
-                # all_paths.extend(path)
-
-        # return all_paths
-
-    # def route_weight(self, route, reverse=False):
-        # if len(route) < 2: return 0
-
-        # total_weight = 0
-        # for x in xrange(len(route)-1):
-            # node = route[x]
-            # next_node = route[x+1]
-            # weight = self.reverse_distances[(node, next_node)] if reverse else self.distances[(node, next_node)]
-            # total_weight += weight
-
-        # return total_weight
-
-
-# upper = list(string.ascii_uppercase)[:5]
-# test = Graph()
-# for letter in upper:
-    # test.add_node(letter)
-
-# nodes = list(test.nodes)
-# for node in nodes:
-    # for other in nodes:
-        # if node == other: continue
-        # rand = randint(-5,5)
-        # if rand > 0:
-            # test.add_edge(node, other, rand)
-
-# print test.distances
-
-# a = test.find_all_paths('A')
-# print 'res'
-# print a
-
 carpool = Graph()
 
 car_num = 2
@@ -202,8 +134,6 @@ routes = carpool.find_all_paths('dest')
 
 print
 print 'weights:'
-
-
 
 weights = {}
 track = {}
