@@ -108,7 +108,7 @@ class Graph:
 
 carpool = Graph()
 
-car_num = 2
+car_num = 3
 cars = ['car'+str(x) for x in xrange(car_num)]
 home_num = 3
 homes = ['home'+str(x) for x in xrange(home_num)]
@@ -138,10 +138,13 @@ print 'weights:'
 weights = {}
 track = {}
 
+def str2int(string):
+    return sum([ord(l) for l in list(string)])
+
 for route in routes:
     weight = carpool.route_weight(route)
 
-    route_num = [sum([ord(l) for l in list(x)]) for x in route]
+    route_num = [str2int(x) for x in route]
     mul = reduce(lambda x, y: x*y, route_num)
     add = sum(route_num)
     identity = mul*add
@@ -157,3 +160,40 @@ for k,v in track.iteritems():
     weights[tuple(v[0])] = v[1]
 
 print weights
+
+filtered_routes = [list(x) for x in weights.keys()]
+
+def subset_sum(numbers, target, partial=[]):
+    subsets = []
+    s = sum(partial)
+
+    if s == target: 
+        return [partial]
+    elif s > target:
+        return []
+
+    for i in range(len(numbers)):
+        n = numbers[i]
+        remaining = numbers[i+1:]
+        subsets.extend(subset_sum(remaining, target, partial + [n]))
+    return subsets
+
+target = 0
+for node in cars+homes:
+    val = str2int(node)
+    print node
+    print val
+    target += val
+
+num_routes = []
+for route in filtered_routes:
+    temp_route = route[1:]
+    print temp_route
+    val = sum([str2int(x) for x in temp_route])
+    num_routes.append(val)
+
+print target
+print num_routes
+
+subsets = subset_sum(num_routes, target)
+print subsets
